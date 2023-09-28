@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { ReactComponent as ArrowRightIcon } from '../assets/svg/keyboardArrowRightIcon.svg'
 import VisibilityIcon from '../assets/svg/visibilityIcon.svg'
+import { toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 import {
   getAuth,
   createUserWithEmailAndPassword,
@@ -51,7 +53,16 @@ function SignUp() {
       // console.log(auth.currentUser)
       // console.log(userCredential)
     } catch (error) {
-      console.log(error)
+      toast.error('Bad Email or/and password', {
+        position: 'top-right',
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: 'light',
+      })
     }
   }
 
