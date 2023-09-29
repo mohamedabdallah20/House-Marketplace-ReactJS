@@ -9,6 +9,7 @@ import ForgotPassword from './pages/ForgotPassword'
 import NavBar from './components/layout/NavBar'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import Category from './pages/Category'
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
             <Route path="/profile" element={<Profile />} />
           </Route>
           <Route path="/sign-in" element={<SignIn />} />
+          <Route path="/category/:categoryName" element={<Category />} />
           <Route path="/sign-up" element={<SignUp />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
         </Routes>
