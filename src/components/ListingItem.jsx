@@ -1,5 +1,5 @@
 import React from 'react'
-import deleteIcon from '../assets/svg/deleteIcon.svg'
+import { ReactComponent as DeleteIcon } from '../assets/svg/deleteIcon.svg'
 import bedIcon from '../assets/svg/bedIcon.svg'
 import bathtubIcon from '../assets/svg/bathtubIcon.svg'
 import { Link } from 'react-router-dom'
@@ -47,7 +47,7 @@ function ListingItem({ listing, id, onDelete }) {
         </div>
       </Link>
       {onDelete && (
-        <deleteIcon
+        <DeleteIcon
           className="removeIcon"
           fill="#ff0000"
           onClick={() => onDelete(listing.id, listing.name)}
