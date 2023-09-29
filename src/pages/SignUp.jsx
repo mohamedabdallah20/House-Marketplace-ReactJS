@@ -11,6 +11,7 @@ import {
 } from 'firebase/auth'
 import { db } from '../firebase.config'
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore'
+import OAuth from '../components/OAuth'
 
 function SignUp() {
   const [showPassword, setShowPassword] = useState(false)
@@ -49,9 +50,6 @@ function SignUp() {
 
       await setDoc(doc(db, 'users', user.uid), formDataCopy)
       navigate('/')
-      // console.log(user)
-      // console.log(auth.currentUser)
-      // console.log(userCredential)
     } catch (error) {
       toast.error('Bad Email or/and password', {
         position: 'top-right',
@@ -113,7 +111,7 @@ function SignUp() {
               </button>
             </div>
           </form>
-          {/* google OAuth component */}
+          <OAuth />
           <Link to="/sign-in" className="registerLink">
             Back to Sign IN
           </Link>
