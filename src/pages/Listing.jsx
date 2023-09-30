@@ -71,7 +71,7 @@ function Listing() {
             className="primaryButton"
             to={`/contact/${listing.userRef}?listingName=${encodeURIComponent(
               listing.name
-            )}&listingLocation=${encodeURIComponent(listing.location)}`}
+            )}`}
           >
             contact landlord
           </Link>
