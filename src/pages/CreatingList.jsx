@@ -2,16 +2,16 @@ import React, { useEffect, useState } from 'react'
 import { getAuth } from 'firebase/auth'
 import Spinner from '../components/layout/Spinner'
 import { toast } from 'react-toastify'
-// import { useNavigate } from 'react-router-dom'
 import {
   getStorage,
   ref,
   uploadBytesResumable,
   getDownloadURL,
 } from 'firebase/storage'
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore'
 import { db } from '../firebase.config'
 import { v4 as uuidv4 } from 'uuid'
-import { serverTimestamp } from 'firebase/firestore'
+import { useNavigate } from 'react-router-dom'
 
 function CreatingList() {
   const [geolocationEnabled, setGeolocationEnabled] = useState(true)
@@ -49,7 +49,7 @@ function CreatingList() {
     longitude,
   } = formData
   const auth = getAuth()
-  //   const navigate = useNavigate()
+  const navigate = useNavigate()
   useEffect(() => {
     const userRef = auth.currentUser.uid
     setFormData((prevData) => {
@@ -142,20 +142,29 @@ function CreatingList() {
       })
     }
 
-    const imgUrls = await Promise.all(
+    const imageUrls = await Promise.all(
       [...images].map((image) => storeImage(image))
     ).catch(() => {
       setLoading(false)
       toast.error('Images not uploaded')
       return
     })
-    console.log(imgUrls)
-    // const formDataCopy = {
-    //   ...formData,
-    //   imageUrls:imgUrls,
-    //   geolocation,
-    //   timestamp: serverTimestamp(),
-    // }
+    console.log(imageUrls)
+    const formDataCopy = {
+      ...formData,
+      imageUrls,
+      geolocation,
+      timestamp: serverTimestamp(),
+    }
+    formDataCopy.location = address
+    delete formDataCopy.images
+    delete formDataCopy.address
+    !formDataCopy.offer && delete formDataCopy.discountedPrice
+    const docRef = await addDoc(collection(db, 'listings'), formDataCopy)
+    setLoading(false)
+    toast.success('Listing saved')
+    navigate(`/category/${formDataCopy.type}/${docRef.id}`)
+
     setLoading(false)
     // console.log(geolocation)
   }
