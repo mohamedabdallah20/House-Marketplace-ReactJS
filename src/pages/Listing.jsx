@@ -7,6 +7,9 @@ import shareIcon from '../assets/svg/shareIcon.svg'
 import { useFetchListing } from '../hooks/useFetchListing'
 import { toast } from 'react-toastify'
 import { Marker, Popup, TileLayer, MapContainer } from 'react-leaflet'
+import { Navigation, Pagination, Scrollbar, A11y } from 'swiper/modules'
+import { Swiper, SwiperSlide } from 'swiper/react'
+import 'swiper/css/bundle'
 
 function Listing() {
   const auth = getAuth()
@@ -16,7 +19,26 @@ function Listing() {
   if (loading) return <Spinner />
   return (
     <main>
-      {/* slide bar */}
+      <Swiper
+        modules={[Navigation, Pagination, Scrollbar, A11y]}
+        // spaceBetween={50}
+        slidesPerView={1}
+        navigation
+        pagination={{ clickable: true }}
+        scrollbar={{ draggable: true }}
+      >
+        {listing.imageUrls.map((url, index) => (
+          <SwiperSlide key={index}>
+            <div className="swiperSlideDiv">
+              <img
+                className="swiperImg"
+                src={`${listing.imageUrls[index]}}`}
+                alt="img"
+              />
+            </div>
+          </SwiperSlide>
+        ))}
+      </Swiper>
 
       <div
         className="shareIconDiv"
