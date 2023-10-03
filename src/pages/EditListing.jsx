@@ -14,6 +14,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { useNavigate, useParams } from 'react-router-dom'
 
 function EditListing() {
+  // eslint-disable-next-line
   const [geolocationEnabled, setGeolocationEnabled] = useState(true)
   const [loading, setLoading] = useState(true)
   const [listing, setListing] = useState(null)

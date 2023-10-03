@@ -6,6 +6,7 @@ import Spinner from '../components/layout/Spinner'
 function Contact() {
   const userId = useParams().landlordId
   const [message, setMessage] = useState('')
+  // eslint-disable-next-line
   const [searchPrams, setSearchPrams] = useSearchParams()
   const { user, loading } = useFetchUser(userId)
 

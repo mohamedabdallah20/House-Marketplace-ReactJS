@@ -1,6 +1,6 @@
 import React from 'react'
 import { useState } from 'react'
-import { Link, useParams, useNavigate } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import Spinner from '../components/layout/Spinner'
 import { getAuth } from 'firebase/auth'
 import shareIcon from '../assets/svg/shareIcon.svg'

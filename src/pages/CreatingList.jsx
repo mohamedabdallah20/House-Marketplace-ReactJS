@@ -14,6 +14,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { useNavigate } from 'react-router-dom'
 
 function CreatingList() {
+  // eslint-disable-next-line
   const [geolocationEnabled, setGeolocationEnabled] = useState(true)
   const [loading, setLoading] = useState(true)
 

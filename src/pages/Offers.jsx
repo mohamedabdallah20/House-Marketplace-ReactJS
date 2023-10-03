@@ -13,7 +13,6 @@ import { db } from '../firebase.config'
 import { toast } from 'react-toastify'
 import Spinner from '../components/layout/Spinner'
 import ListingItem from '../components/ListingItem'
-import { useParams } from 'react-router-dom'
 
 function Offers() {
   const [listings, setListings] = useState(null)
@@ -61,7 +60,8 @@ function Offers() {
         listingRef,
         where('offer', '==', true),
         orderBy('timestamp', 'desc'),
-        limit(10)
+        limit(10),
+        startAfter(lastFetchedListing)
       )
       // Execute the query
       const querySnap = await getDocs(q)
