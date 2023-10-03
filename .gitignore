@@ -9,7 +9,7 @@
 /coverage
 
 house-marketplace-resources*
-src/firebase.config.js
+# src/firebase.config.js
 # production
 /build
 
