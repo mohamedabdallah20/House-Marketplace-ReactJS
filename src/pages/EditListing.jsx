@@ -8,14 +8,15 @@ import {
   uploadBytesResumable,
   getDownloadURL,
 } from 'firebase/storage'
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore'
+import { serverTimestamp, doc, updateDoc, getDoc } from 'firebase/firestore'
 import { db } from '../firebase.config'
 import { v4 as uuidv4 } from 'uuid'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 
-function CreatingList() {
+function EditListing() {
   const [geolocationEnabled, setGeolocationEnabled] = useState(true)
   const [loading, setLoading] = useState(true)
+  const [listing, setListing] = useState(null)
 
   const [formData, setFormData] = useState({
     name: '',
@@ -50,6 +51,35 @@ function CreatingList() {
   } = formData
   const auth = getAuth()
   const navigate = useNavigate()
+  const params = useParams()
+
+  //   Redirect if listing is no User's
+  useEffect(() => {
+    if (listing && listing.userRef !== auth.currentUser.uid) {
+      toast.error('You cannot edit this listing')
+      navigate('/')
+    }
+  }, [auth, navigate, listing])
+
+  //   fetch listing to edit
+  useEffect(() => {
+    const fetchListing = async () => {
+      const docRef = doc(db, 'listings', params.listingId)
+      //   console.log(params.listingId)
+      const docSnap = await getDoc(docRef)
+      if (docSnap.exists()) {
+        setListing(docSnap.data())
+        setFormData({ ...docSnap.data(), address: docSnap.data().location })
+        setLoading(false)
+      } else {
+        navigate('/')
+        toast.error('Listing does not exist')
+      }
+    }
+    fetchListing()
+    setLoading(false)
+  }, [params.listingId, navigate])
+  //   set userRef to logged in user
   useEffect(() => {
     const userRef = auth.currentUser.uid
     if (!userRef) {
@@ -69,12 +99,14 @@ function CreatingList() {
     setLoading(true)
 
     if (Number(discountedPrice) >= Number(regularPrice)) {
+      //   console.log(typeof regularPrice)
+      //   console.log(typeof discountedPrice)
       setLoading(false)
       toast.error('Discounted price needs to be less than regular price')
       return
     }
 
-    if (images.length > 6) {
+    if (images?.length > 6) {
       setLoading(false)
       toast.error('Max 6 images')
       return
@@ -108,51 +140,59 @@ function CreatingList() {
     }
 
     const storeImage = async (image) => {
-      return new Promise((resolve, reject) => {
-        const storage = getStorage()
-        const fileName = `${auth.currentUser.uid}-${image.name}-${uuidv4()}`
-        const storageRef = ref(storage, `images/${fileName}`)
-        const uploadTask = uploadBytesResumable(storageRef, image)
+      if (image) {
+        return new Promise((resolve, reject) => {
+          const storage = getStorage()
+          const fileName = `${auth.currentUser.uid}-${image.name}-${uuidv4()}`
+          const storageRef = ref(storage, `images/${fileName}`)
+          const uploadTask = uploadBytesResumable(storageRef, image)
 
-        uploadTask.on(
-          'state_changed',
-          (snapshot) => {
-            const progress =
-              (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-            console.log('Upload is ' + progress + '% done')
-            switch (snapshot.state) {
-              case 'paused':
-                console.log('Upload is paused')
-                break
-              case 'running':
-                console.log('Upload is running')
-                break
-              default:
-                break
+          uploadTask.on(
+            'state_changed',
+            (snapshot) => {
+              const progress =
+                (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+              console.log('Upload is ' + progress + '% done')
+              switch (snapshot.state) {
+                case 'paused':
+                  console.log('Upload is paused')
+                  break
+                case 'running':
+                  console.log('Upload is running')
+                  break
+                default:
+                  break
+              }
+            },
+            (error) => {
+              reject(error)
+            },
+            () => {
+              // Handle successful uploads on complete
+              // For instance, get the download URL: https://firebasestorage.googleapis.com/...
+              getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                resolve(downloadURL)
+              })
             }
-          },
-          (error) => {
-            reject(error)
-          },
-          () => {
-            // Handle successful uploads on complete
-            // For instance, get the download URL: https://firebasestorage.googleapis.com/...
-            getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-              resolve(downloadURL)
-            })
-          }
-        )
-      })
+          )
+        })
+      }
     }
 
-    const imageUrls = await Promise.all(
-      [...images].map((image) => storeImage(image))
-    ).catch(() => {
-      setLoading(false)
-      toast.error('Images not uploaded')
-      return
-    })
-    console.log(imageUrls)
+    let imageUrls
+    if (images) {
+      const newImageUrls = await Promise.all(
+        [...images].map((image) => storeImage(image))
+      ).catch(() => {
+        setLoading(false)
+        toast.error('Images not uploaded')
+        return
+      })
+      imageUrls = [...newImageUrls, ...listing.imageUrls]
+    } else {
+      imageUrls = [...listing.imageUrls]
+    }
+    // console.log(imageUrls)
     const formDataCopy = {
       ...formData,
       imageUrls,
@@ -163,7 +203,9 @@ function CreatingList() {
     delete formDataCopy.images
     delete formDataCopy.address
     !formDataCopy.offer && delete formDataCopy.discountedPrice
-    const docRef = await addDoc(collection(db, 'listings'), formDataCopy)
+    // const docRef = await addDoc(collection(db, 'listings'), formDataCopy)
+    const docRef = doc(db, 'listings', params.listingId)
+    await updateDoc(docRef, formDataCopy)
     setLoading(false)
     toast.success('Listing saved')
     navigate(`/category/${formDataCopy.type}/${docRef.id}`)
@@ -201,7 +243,7 @@ function CreatingList() {
   return (
     <div className="profile">
       <header>
-        <p className="pageHeader">Creating a Listing</p>
+        <p className="pageHeader">Edit a Listing</p>
       </header>
       <main>
         <form onSubmit={onSubmit}>
@@ -424,10 +466,10 @@ function CreatingList() {
             max="6"
             accept=".jpg,.png,.jpeg"
             multiple
-            required
+            // required
           />
           <button type="submit" className="primaryButton createListingButton">
-            Create Listing
+            Edit Listing
           </button>
         </form>
       </main>
@@ -435,4 +477,4 @@ function CreatingList() {
   )
 }
 
-export default CreatingList
+export default EditListing

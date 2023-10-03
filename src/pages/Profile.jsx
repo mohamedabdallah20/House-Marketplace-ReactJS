@@ -146,6 +146,10 @@ function Profile() {
                   key={listing.id}
                   listing={listing.data}
                   onDelete={() => onDelete(listing.id)}
+                  onEdit={(listingId) => {
+                    // console.log(listingId)
+                    navigate(`/edit-listing/${listingId}`)
+                  }}
                 />
               ))}
             </ul>

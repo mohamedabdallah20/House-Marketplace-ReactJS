@@ -13,6 +13,7 @@ import Category from './pages/Category'
 import CreatingList from './pages/CreatingList'
 import Listing from './pages/Listing'
 import Contact from './pages/Contact'
+import EditListing from './pages/EditListing'
 
 function App() {
   return (
@@ -26,6 +27,9 @@ function App() {
           </Route>
           <Route path="/create-listing" element={<PrivateRoute />}>
             <Route path="/create-listing" element={<CreatingList />} />
+          </Route>
+          <Route path="/edit-listing/:listingId" element={<PrivateRoute />}>
+            <Route path="/edit-listing/:listingId" element={<EditListing />} />
           </Route>
           <Route
             path="/category/:categoryName/:listingId"
